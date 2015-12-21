@@ -13,6 +13,8 @@ namespace SE_DataImport
 {
     public partial class MainForm : Form
     {
+        private bool isClosing = false;
+
         public MainForm()
         {
             InitializeComponent();
@@ -37,15 +39,19 @@ namespace SE_DataImport
 
         private void logMessage(string msg)
         {
+            toolStripStatus.Text = msg;
             string completeMsg = String.Format("{0}: {1}{2}", DateTime.Now, msg, Environment.NewLine);
             messages.AppendText(completeMsg);
         }
 
         private void beginImportButton_Click(object sender, EventArgs e)
         {
-            messages.Text = "";
+            if (importDirectory.Text.Length == 0)
+            {
+                logMessage("Please specify input directoty");
+                return;
+            }
             try {
-                logMessage("Beginning import");
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString.Text);
                 string databaseName = builder.InitialCatalog;
                 if (databaseName.Length == 0)
@@ -53,6 +59,7 @@ namespace SE_DataImport
                     logMessage("Please specify a database name (initial catalog) in the connection string");
                     return;
                 }
+                logMessage("Beginning import");
                 builder.InitialCatalog = "";
                 using (SqlConnection conn = new SqlConnection(builder.ConnectionString))
                 {
@@ -77,7 +84,7 @@ namespace SE_DataImport
                     HtmlAgilityPack.HtmlDocument doc = web.Load("http://data.stackexchange.com/stackoverflow/query/new");
                     foreach (HtmlNode node in doc.DocumentNode.Descendants("li").Where(d => d.Attributes["data-order"] != null))
                     {
-                        string tableName = node.Descendants("span").First().InnerHtml;
+                        string tableName = tablePrefix.Text + node.Descendants("span").First().InnerHtml;
                         string sqlCheckTableExists = string.Format("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'", tableName);
                         using (SqlCommand cmd = new SqlCommand(sqlCheckTableExists, conn))
                         {
@@ -111,11 +118,13 @@ namespace SE_DataImport
                         logMessage(string.Format("Importing table {0}", tableName));
                         using (XmlTextReader reader = new XmlTextReader(fileName))
                         {
+                            int rowCount = 0;
                             reader.Read();
                             while (reader.Read())
                             {
                                 if (reader.HasAttributes)
                                 {
+                                    rowCount++;
                                     List<string> columnNames = new List<string>();
                                     List<string> dataValues = new List<string>();
                                     SqlCommand cmd = new SqlCommand("", conn);
@@ -131,11 +140,33 @@ namespace SE_DataImport
                                     cmd.CommandText = sqlInsertCmd;
                                     cmd.ExecuteNonQuery();
                                     reader.MoveToElement();
+                                    if (rowCount % 100 == 0)
+                                    {
+                                        toolStripStatus.Text = String.Format("Inserted {0} rows", rowCount.ToString());
+                                        Application.DoEvents();
+                                    }
+                                    if (isClosing)
+                                        return;
                                 }
                             }
                         }
                     }
-
+                    const string importFilename = "ImportReferenceTables.SQL";
+                    if (File.Exists(importFilename))
+                    {
+                        logMessage("Importing reference table data");
+                        using (StreamReader reader = new StreamReader(importFilename))
+                        {
+                            string sqlCmd;
+                            while ((sqlCmd = reader.ReadLine()) != null)
+                            {
+                                SqlCommand cmd = new SqlCommand(sqlCmd, conn);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    else
+                        logMessage(String.Format("File {0} not found, skipping import of reference table data", importFilename));
                     conn.Close();
                     logMessage("Import finished");
                 }
@@ -143,6 +174,11 @@ namespace SE_DataImport
             {
                 logMessage(ex.ToString());
             }
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            isClosing = true;
         }
     }
 }

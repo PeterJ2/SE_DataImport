@@ -41,6 +41,9 @@
             this.beginImportButton = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.messages = new System.Windows.Forms.TextBox();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // connectionString
@@ -49,9 +52,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.connectionString.Location = new System.Drawing.Point(111, 10);
             this.connectionString.Name = "connectionString";
-            this.connectionString.Size = new System.Drawing.Size(384, 20);
+            this.connectionString.Size = new System.Drawing.Size(483, 20);
             this.connectionString.TabIndex = 0;
-            this.connectionString.Text = "Data Source=(LocalDB)\\MSSQLLocalDB;Integrated Security=True";
+            this.connectionString.Text = "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=StackExchange;Integrated Secur" +
+    "ity=True";
             // 
             // label1
             // 
@@ -65,7 +69,7 @@
             // buildConnectionStringButton
             // 
             this.buildConnectionStringButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buildConnectionStringButton.Location = new System.Drawing.Point(504, 8);
+            this.buildConnectionStringButton.Location = new System.Drawing.Point(603, 8);
             this.buildConnectionStringButton.Name = "buildConnectionStringButton";
             this.buildConnectionStringButton.Size = new System.Drawing.Size(26, 23);
             this.buildConnectionStringButton.TabIndex = 2;
@@ -88,13 +92,13 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.importDirectory.Location = new System.Drawing.Point(111, 39);
             this.importDirectory.Name = "importDirectory";
-            this.importDirectory.Size = new System.Drawing.Size(384, 20);
+            this.importDirectory.Size = new System.Drawing.Size(483, 20);
             this.importDirectory.TabIndex = 4;
             // 
             // findImportDirectoryButton
             // 
             this.findImportDirectoryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.findImportDirectoryButton.Location = new System.Drawing.Point(504, 36);
+            this.findImportDirectoryButton.Location = new System.Drawing.Point(603, 36);
             this.findImportDirectoryButton.Name = "findImportDirectoryButton";
             this.findImportDirectoryButton.Size = new System.Drawing.Size(26, 23);
             this.findImportDirectoryButton.TabIndex = 5;
@@ -159,14 +163,30 @@
             this.messages.Location = new System.Drawing.Point(16, 149);
             this.messages.Multiline = true;
             this.messages.Name = "messages";
-            this.messages.Size = new System.Drawing.Size(511, 122);
+            this.messages.Size = new System.Drawing.Size(610, 242);
             this.messages.TabIndex = 11;
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatus});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 394);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(638, 22);
+            this.statusStrip1.TabIndex = 12;
+            this.statusStrip1.Text = "status";
+            // 
+            // toolStripStatus
+            // 
+            this.toolStripStatus.Name = "toolStripStatus";
+            this.toolStripStatus.Size = new System.Drawing.Size(0, 17);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(539, 278);
+            this.ClientSize = new System.Drawing.Size(638, 416);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.messages);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.beginImportButton);
@@ -181,6 +201,9 @@
             this.Controls.Add(this.connectionString);
             this.Name = "MainForm";
             this.Text = "Stack Exchange Data Import";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -201,6 +224,8 @@
         private System.Windows.Forms.Button beginImportButton;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox messages;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatus;
     }
 }
 
