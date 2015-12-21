@@ -105,6 +105,8 @@ namespace SE_DataImport
                                         if (i > 0)
                                             sqlCreateTable += ",";
                                         sqlCreateTable += columnNames[i] + " " + dataTypes[i];
+                                        if (columnNames[i] == "Id")
+                                            sqlCreateTable += " NOT NULL";
                                     }
                                 }
                                 sqlCreateTable += ")";
@@ -114,8 +116,10 @@ namespace SE_DataImport
                     }
                     foreach (string fileName in Directory.GetFiles(importDirectory.Text, "*.XML"))
                     {
-                        string tableName = Path.GetFileNameWithoutExtension(fileName);
+                        string tableName = tablePrefix.Text + Path.GetFileNameWithoutExtension(fileName);
                         logMessage(string.Format("Importing table {0}", tableName));
+                        string sqlTruncateTable = string.Format("TRUNCATE TABLE {0}", tableName);
+                        new SqlCommand(sqlTruncateTable, conn).ExecuteNonQuery();
                         using (XmlTextReader reader = new XmlTextReader(fileName))
                         {
                             int rowCount = 0;
@@ -136,7 +140,7 @@ namespace SE_DataImport
                                     }
                                     string columnList = columnNames.Aggregate((x, y) => x + "," + y);
                                     string paramList = columnNames.Aggregate((x, y) => x + ",@" + y);
-                                    string sqlInsertCmd = String.Format("INSERT INTO {0} ({1}) VALUES (@{2})", tablePrefix.Text + tableName, columnList, paramList);
+                                    string sqlInsertCmd = String.Format("INSERT INTO {0} ({1}) VALUES (@{2})", tableName, columnList, paramList);
                                     cmd.CommandText = sqlInsertCmd;
                                     cmd.ExecuteNonQuery();
                                     reader.MoveToElement();
@@ -150,6 +154,9 @@ namespace SE_DataImport
                                 }
                             }
                         }
+                        logMessage(String.Format ("Adding primary key to {0}", tableName));
+                        string sqlAddPrimaryKey = string.Format("IF NOT EXISTS (SELECT *  FROM sys.indexes WHERE name = 'PK_{0}') BEGIN ALTER TABLE {0} ADD CONSTRAINT PK_{0} PRIMARY KEY CLUSTERED (Id ASC) END", tableName);
+                        new SqlCommand(sqlAddPrimaryKey, conn).ExecuteNonQuery();
                     }
                     const string importFilename = "ImportReferenceTables.SQL";
                     if (File.Exists(importFilename))
@@ -160,6 +167,7 @@ namespace SE_DataImport
                             string sqlCmd;
                             while ((sqlCmd = reader.ReadLine()) != null)
                             {
+                                sqlCmd = sqlCmd.Replace("INSERT [dbo].[", "INSERT [" + tablePrefix.Text);
                                 SqlCommand cmd = new SqlCommand(sqlCmd, conn);
                                 cmd.ExecuteNonQuery();
                             }
