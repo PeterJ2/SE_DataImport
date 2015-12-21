@@ -36,7 +36,7 @@
             this.findImportDirectoryButton = new System.Windows.Forms.Button();
             this.folderBrowserDlg = new System.Windows.Forms.FolderBrowserDialog();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.tablePrefix = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.beginImportButton = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
@@ -116,12 +116,12 @@
             this.label3.TabIndex = 6;
             this.label3.Text = "Table prefix:";
             // 
-            // textBox1
+            // tablePrefix
             // 
-            this.textBox1.Location = new System.Drawing.Point(111, 66);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 20);
-            this.textBox1.TabIndex = 7;
+            this.tablePrefix.Location = new System.Drawing.Point(111, 66);
+            this.tablePrefix.Name = "tablePrefix";
+            this.tablePrefix.Size = new System.Drawing.Size(100, 20);
+            this.tablePrefix.TabIndex = 7;
             // 
             // label4
             // 
@@ -171,7 +171,7 @@
             this.Controls.Add(this.label5);
             this.Controls.Add(this.beginImportButton);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.tablePrefix);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.findImportDirectoryButton);
             this.Controls.Add(this.importDirectory);
@@ -196,7 +196,7 @@
         private System.Windows.Forms.Button findImportDirectoryButton;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDlg;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox tablePrefix;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button beginImportButton;
         private System.Windows.Forms.Label label5;

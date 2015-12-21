@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Data.ConnectionUI;
 using System.Data.SqlClient;
 using HtmlAgilityPack;
+using System.IO;
+using System.Xml;
 
 namespace SE_DataImport
 {
@@ -107,6 +105,37 @@ namespace SE_DataImport
                             }
                         }   
                     }
+                    foreach (string fileName in Directory.GetFiles(importDirectory.Text, "*.XML"))
+                    {
+                        string tableName = Path.GetFileNameWithoutExtension(fileName);
+                        logMessage(string.Format("Importing table {0}", tableName));
+                        using (XmlTextReader reader = new XmlTextReader(fileName))
+                        {
+                            reader.Read();
+                            while (reader.Read())
+                            {
+                                if (reader.HasAttributes)
+                                {
+                                    List<string> columnNames = new List<string>();
+                                    List<string> dataValues = new List<string>();
+                                    SqlCommand cmd = new SqlCommand("", conn);
+                                    while (reader.MoveToNextAttribute())
+                                    {
+                                        columnNames.Add(reader.Name);
+                                        dataValues.Add(reader.Value);
+                                        cmd.Parameters.AddWithValue("@" + reader.Name, reader.Value);
+                                    }
+                                    string columnList = columnNames.Aggregate((x, y) => x + "," + y);
+                                    string paramList = columnNames.Aggregate((x, y) => x + ",@" + y);
+                                    string sqlInsertCmd = String.Format("INSERT INTO {0} ({1}) VALUES (@{2})", tablePrefix.Text + tableName, columnList, paramList);
+                                    cmd.CommandText = sqlInsertCmd;
+                                    cmd.ExecuteNonQuery();
+                                    reader.MoveToElement();
+                                }
+                            }
+                        }
+                    }
+
                     conn.Close();
                     logMessage("Import finished");
                 }
