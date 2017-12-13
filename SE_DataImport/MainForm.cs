@@ -156,7 +156,9 @@ namespace SE_DataImport
                         }
                         logMessage(String.Format ("Adding primary key to {0}", tableName));
                         string sqlAddPrimaryKey = string.Format("IF NOT EXISTS (SELECT *  FROM sys.indexes WHERE name = 'PK_{0}') BEGIN ALTER TABLE {0} ADD CONSTRAINT PK_{0} PRIMARY KEY CLUSTERED (Id ASC) END", tableName);
-                        new SqlCommand(sqlAddPrimaryKey, conn).ExecuteNonQuery();
+                        SqlCommand addKeyCmd = new SqlCommand(sqlAddPrimaryKey, conn);
+                        addKeyCmd.CommandTimeout = 600;
+                        addKeyCmd.ExecuteNonQuery();
                     }
                     const string importFilename = "ImportReferenceTables.SQL";
                     if (File.Exists(importFilename))
